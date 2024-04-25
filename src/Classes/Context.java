@@ -18,7 +18,6 @@ public class Context {
 
     protected final StructureStorage structureStorage = new StructureStorage(this);
     protected final FileManager fileManager = new FileManager(this);
-    protected final CommunicationsArray communicationsArray;
     protected final String pathVar = "HOME";
     protected boolean exitCommandUsed = false;
     protected final ZonedDateTime initDate = ZonedDateTime.now();
@@ -26,13 +25,6 @@ public class Context {
     protected int maxRecursionDepth = 100;
     protected CommandManager commandManager = new CommandManager(this);
     public Context(){
-        try {
-            communicationsArray = new CommunicationsArray(this);
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         structureStorage.load();
         Runtime.getRuntime().addShutdownHook(new Thread(structureStorage.getOnCleanRunnable()));
         Cleaner cl = Cleaner.create();

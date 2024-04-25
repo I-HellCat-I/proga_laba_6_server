@@ -1,28 +1,24 @@
 import Classes.Context;
+import Classes.Logger;
+import Network.ClientHandler;
 import Network.CommandMessage;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         Context context = new Context();
-        try {
-            context.getCommunicationsArray().accept();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Connected with");
-
-        while (true){
-            try {
-                CommandMessage message = context.getCommunicationsArray().getCommandMessage();
-                System.out.println(message.commandClass());
-                context.getCommandManager().exec(message);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            if (!context.getCommunicationsArray().isConnected()){
-                context.getCommunicationsArray().accept();
+        ExecutorService executors = Executors.newVirtualThreadPerTaskExecutor();
+        try (ServerSocket serverSocket = new ServerSocket(3214)) {
+            while (true) {
+                Socket client = serverSocket.accept();
+                executors.execute(new ClientHandler(client, context));
+                Logger.log("Main", "New connection");
             }
         }
     }

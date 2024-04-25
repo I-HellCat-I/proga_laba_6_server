@@ -2,6 +2,7 @@ package Network;
 
 import Classes.Context;
 import Classes.Flat;
+import Classes.Logger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -13,22 +14,15 @@ import java.util.Arrays;
 
 
 public class CommunicationsArray {
-    private Context context;
     protected DatagramSocket datagramSocket;
-    protected ServerSocket serverSocket;
     protected JsonMapper mapper;
     protected Socket client;
     protected DataOutputStream clientOutputStream;
 
-    public CommunicationsArray(Context context) throws IOException {
-        this.context = context;
-        this.datagramSocket = new DatagramSocket(3123);
-        this.serverSocket = new ServerSocket(3124);
-        System.out.println(serverSocket.getInetAddress());
+    public CommunicationsArray(Socket client) throws IOException {
+        this.client = client;
         mapper = JsonMapper.builder().findAndAddModules().build();
-    }
-    public void accept() throws IOException {
-        this.client = this.serverSocket.accept();
+        datagramSocket = new DatagramSocket(3213, client.getInetAddress());
         clientOutputStream = new DataOutputStream(client.getOutputStream());
     }
 
@@ -36,15 +30,23 @@ public class CommunicationsArray {
         byte[] bytes = new byte[100000];
         DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
         datagramSocket.receive(datagramPacket);
+        Logger.log("Communications array, " + client.getInetAddress(), "received message");
         return mapper.readValue(datagramPacket.getData(), new TypeReference<CommandMessage>() {});
     }
 
 
     public void sendMessage(Object toSend) throws IOException {
+        Logger.log("CommuncationsArray " + client.getInetAddress(), "message sent");
+        System.out.println(toSend);
         mapper.writeValue((DataOutput) clientOutputStream, toSend);
     }
 
     public boolean isConnected() {
-        return serverSocket.isBound();
+        return client.isBound();
+    }
+    public void kill() throws IOException {
+        clientOutputStream.close();
+        datagramSocket.close();
+        client.close();
     }
 }

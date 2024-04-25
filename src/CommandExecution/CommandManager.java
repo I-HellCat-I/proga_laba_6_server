@@ -1,8 +1,10 @@
 package CommandExecution;
 
 import Classes.Context;
+import Classes.Logger;
 import CommandExecution.Commands.*;
 import Network.CommandMessage;
+import Network.CommunicationsArray;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -43,14 +45,15 @@ public class CommandManager {
         commands.put(s, f);
     }
 
-    public <T> void exec(CommandMessage message) {
+    public <T> void exec(CommandMessage message, CommunicationsArray communicationsArray) {
         try {
-            context.getCommunicationsArray().sendMessage(
+            communicationsArray.sendMessage(
                     commands.get(message.commandClass()).getConstructor(Context.class)
                             .newInstance(context).execute(message)
             );
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException |
                  IOException e) {
+            Logger.err("CommandManager.exec", e.getMessage());
             throw new RuntimeException(e);
         }
     }
