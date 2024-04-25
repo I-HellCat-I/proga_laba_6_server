@@ -21,7 +21,7 @@ public class ClientHandler implements Runnable{
     }
     @Override
     public void run() {
-        while (client.isConnected()){
+        while (!client.isClosed()){
             try {
                 CommandMessage message = null;
                 message = communicationsArray.getCommandMessage();

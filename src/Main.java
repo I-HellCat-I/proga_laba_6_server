@@ -4,6 +4,7 @@ import Network.ClientHandler;
 import Network.CommandMessage;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -17,7 +18,11 @@ public class Main {
         try (ServerSocket serverSocket = new ServerSocket(3214)) {
             while (true) {
                 Socket client = serverSocket.accept();
-                executors.execute(new ClientHandler(client, context));
+                try {
+                    executors.execute(new ClientHandler(client, context));
+                } catch (BindException e){
+                    // ignore
+                }
                 Logger.log("Main", "New connection");
             }
         }
