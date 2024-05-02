@@ -1,5 +1,4 @@
 import Classes.Context;
-import Classes.Logger;
 import Network.ClientHandler;
 import Network.CommandMessage;
 
@@ -10,21 +9,14 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         Context context = new Context();
-        ExecutorService executors = Executors.newVirtualThreadPerTaskExecutor();
-        try (ServerSocket serverSocket = new ServerSocket(3214)) {
-            while (true) {
-                Socket client = serverSocket.accept();
-                try {
-                    executors.execute(new ClientHandler(client, context));
-                } catch (BindException e){
-                    // ignore
-                }
-                Logger.log("Main", "New connection");
-            }
+        while (true) {
+            context.getCommandManager().exec(context.getServerCommunicationsArray().getCommandMessage(), context.getServerCommunicationsArray());
         }
     }
 }

@@ -1,14 +1,15 @@
 package Classes;
 
 import CommandExecution.CommandManager;
-import Network.CommunicationsArray;
+import Network.ServerCommunicationsArray;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
 import java.lang.ref.Cleaner;
-import java.net.SocketException;
 import java.time.ZonedDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Общий контекст, содержит ссылки на переменные, используемые в разных частях программы, ибо мне лень их передавать
@@ -21,6 +22,14 @@ public class Context {
     protected final String pathVar = "HOME";
     protected boolean exitCommandUsed = false;
     protected final ZonedDateTime initDate = ZonedDateTime.now();
+    protected ServerCommunicationsArray serverCommunicationsArray;
+    {
+        try {
+            serverCommunicationsArray = new ServerCommunicationsArray();
+        } catch (IOException e) {
+            Logger.getAnonymousLogger().log(Level.SEVERE, e.getMessage());
+        }
+    }
     @Setter
     protected int maxRecursionDepth = 100;
     protected CommandManager commandManager = new CommandManager(this);

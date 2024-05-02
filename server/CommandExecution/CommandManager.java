@@ -1,15 +1,16 @@
 package CommandExecution;
 
 import Classes.Context;
-import Classes.Logger;
 import CommandExecution.Commands.*;
 import Network.CommandMessage;
-import Network.CommunicationsArray;
+import Network.ServerCommunicationsArray;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Класс, отвечающий за обработку команд
@@ -45,7 +46,7 @@ public class CommandManager {
         commands.put(s, f);
     }
 
-    public <T> void exec(CommandMessage message, CommunicationsArray communicationsArray) {
+    public <T> void exec(CommandMessage message, ServerCommunicationsArray communicationsArray) {
         try {
             communicationsArray.sendMessage(
                     commands.get(message.commandClass()).getConstructor(Context.class)
@@ -53,7 +54,7 @@ public class CommandManager {
             );
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException |
                  IOException e) {
-            Logger.err("CommandManager.exec", e.getMessage());
+            Logger.getAnonymousLogger().log(Level.WARNING, "CommandManager.exec", e.getMessage());
             throw new RuntimeException(e);
         }
     }
